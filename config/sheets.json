@@ -1,0 +1,20 @@
+{
+ "spreadsheet_id": "1mJvhPOZ6cCjiiPpmHeCBxb2IVJ9W-s09wf-yctpAdCw",
+ "drive_folder_id": "1V5neHvlyPICSvMC3L-LDWLIxRrlj6E6z",
+ "tabs": {
+  "2026.10": 1737815032,
+  "2026.11": 117990701,
+  "2026.12": 1050507692
+ },
+ "content_px": {
+  "2026.10": 126,
+  "2026.11": 190,
+  "2026.12": 126
+ },
+ "skip_months": [
+  "2026.09"
+ ],
+ "input_tab": "입력",
+ "fin_folder_id": "14RNIZ21Yyc03wzeL5et_-9CUWh-YmOFy",
+ "calendar_id": null
+}
