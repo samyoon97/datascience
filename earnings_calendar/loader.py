@@ -35,8 +35,55 @@ class Financials:
         return self.quarters.get(metric, {}).get(q)
 
 
+_PERIOD = r"\d{4} [QY]\d?(?:\(E\))?"
+_CELL = re.compile(r"|-|-?[\d,]*\.?\d+|(?:IFRS|GAAP)\(.*\)|" + _PERIOD + r"|\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2}.*")
+
+
+def _split_boundary(tok):
+    """'마지막셀 첫셀' 로 붙은 토큰을 나눈다. 왼쪽이 값으로 보이는 가장 긴 분할을 고른다."""
+    for i in sorted((i for i, ch in enumerate(tok) if ch == " "), reverse=True):
+        if _CELL.fullmatch(tok[:i].strip()):
+            return tok[:i], tok[i + 1:]
+    raise ValueError(f"행 경계를 찾지 못함: {tok!r}")
+
+
+def parse_drive_text(text):
+    """Google Drive read_file_content 결과(xlsx 텍스트)를 행 리스트로.
+
+    형식: '<시트명> ' + 행(CSV)들을 공백 하나로 이어 붙인 한 줄. 행 경계의 공백이 셀 안 공백과
+    구분되지 않으므로, 머리글 행에서 열 개수 N 을 알아낸 뒤 N-1 토큰마다 경계를 나눈다.
+    """
+    text = text.strip("\n")
+    tokens = next(csv.reader([text]))
+    first = tokens[0].split(" ", 1)
+    tokens[0] = first[1] if len(first) > 1 else ""
+    n = None
+    for i, t in enumerate(tokens[1:], 1):
+        if re.fullmatch(_PERIOD + r" .*", t, flags=re.S) and not re.fullmatch(_PERIOD, t):
+            n = i + 1
+            break
+    if n is None:
+        raise ValueError("머리글에서 기간(예: 2026 Q3) 열을 찾지 못함")
+    rows, cur = [], [tokens[0]]
+    for i, t in enumerate(tokens[1:], 1):
+        if i % (n - 1) == 0 and i < len(tokens) - 1:   # 마지막 토큰은 행 경계가 아님
+            left, right = _split_boundary(t)
+            cur.append(left)
+            rows.append(cur)
+            cur = [right]
+        else:
+            cur.append(t)
+    rows.append(cur)
+    bad = [r for r in rows if len(r) != n]
+    if bad:
+        raise ValueError(f"열 개수 불일치 {len(bad)}행 (기대 {n})")
+    return [tuple(_num(c) if c not in ("", "-") else None for c in r) for r in rows]
+
+
 def _rows(path):
     path = Path(path)
+    if path.suffix.lower() == ".txt":
+        return parse_drive_text(path.read_text(encoding="utf-8"))
     if path.suffix.lower() == ".json":
         return [tuple(r) for r in json.loads(path.read_text(encoding="utf-8"))]
     if path.suffix.lower() == ".csv":

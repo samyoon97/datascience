@@ -11,10 +11,11 @@
   "2026.11": 190,
   "2026.12": 126
  },
- "skip_months": [
-  "2026.09"
- ],
- "input_tab": "입력",
- "fin_folder_id": "14RNIZ21Yyc03wzeL5et_-9CUWh-YmOFy",
- "calendar_id": null
+ "skip_months": [],
+ "calendar_id": null,
+ "drive_folders": {
+  "실적 캘린더": "1V5neHvlyPICSvMC3L-LDWLIxRrlj6E6z",
+  "실적예정일": "1v3z_z7d9UVIQskmjQox9Pg02fwK1ZRij",
+  "재무데이터": "14RNIZ21Yyc03wzeL5et_-9CUWh-YmOFy"
+ }
 }

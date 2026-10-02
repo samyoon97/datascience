@@ -5,3 +5,4 @@ __pycache__/
 # 재무 원본 데이터는 커밋하지 않음
 *.xlsx
 fin/
+drive/
